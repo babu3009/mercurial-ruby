@@ -53,7 +53,7 @@ module Mercurial
       Proc.new do
         debug(command)
         result, error, = '', ''
-        status = IO.popen4(command) do |pid, stdin, stdout, stderr|
+        IO.popen4(command) do |pid, stdin, stdout, stderr|
           Timeout.timeout(timeout) do
             while tmp = stdout.read(102400)
               result += tmp
@@ -64,13 +64,13 @@ module Mercurial
             error += tmp
           end
         end
-        raise_error_if_needed(status, error)
+        raise_error_if_needed($?, error)
         result
       end
     end
     
     def raise_error_if_needed(status, error)
-      return if status.exitstatus == 0
+      return if status.to_i == 0
       if error && error != ''
         raise CommandError, error
       end
