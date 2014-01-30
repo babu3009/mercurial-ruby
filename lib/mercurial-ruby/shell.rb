@@ -63,10 +63,6 @@ module Mercurial
         cmd = append_command_with(hg_binary_path, cmd)
       end
 
-      if dir = options.delete(:in)
-        build << interpolate_arguments(["cd ?", dir])
-      end
-
       if cmd.kind_of?(Array)
         cmd = interpolate_arguments(cmd)
       end

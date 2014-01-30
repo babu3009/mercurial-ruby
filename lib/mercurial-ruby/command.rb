@@ -17,6 +17,7 @@ module Mercurial
       @repository = options[:repository]
       @use_cache  = options[:cache].nil? || options[:cache] == false ? false : true
       @timeout    = options[:timeout] ? options[:timeout].to_i : global_execution_timeout.to_i
+      @dir = options[:in]||'.'
     end
 
     def execute
@@ -53,15 +54,17 @@ module Mercurial
       Proc.new do
         debug(command)
         result, error, = '', ''
-        IO.popen4(command) do |pid, stdin, stdout, stderr|
-          Timeout.timeout(timeout) do
-            while tmp = stdout.read(102400)
-              result += tmp
+        Dir.chdir(@dir) do
+          IO.popen4(command) do |pid, stdin, stdout, stderr|
+            Timeout.timeout(timeout) do
+              while tmp = stdout.read(102400)
+                result += tmp
+              end
             end
-          end
 
-          while tmp = stderr.read(1024)
-            error += tmp
+            while tmp = stderr.read(1024)
+              error += tmp
+            end
           end
         end
         raise_error_if_needed($?, error)
