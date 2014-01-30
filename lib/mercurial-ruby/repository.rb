@@ -41,9 +41,19 @@ module Mercurial
       create_destination(destination)
       opts = cmd_options.merge(:append_hg => true)
       Mercurial::Shell.run(["clone ? ?", url, destination], opts)
-      open(destination)      
+      open(destination)
     end
-    
+
+    #
+    # updates the existing repository.
+    #
+    # === Example:
+    # TODO
+    #
+    def update(origin='default', cmd_options={})
+      shell.hg(['update ?', origin], cmd_options)
+    end
+
     def initialize(source)
       @path = source
     end

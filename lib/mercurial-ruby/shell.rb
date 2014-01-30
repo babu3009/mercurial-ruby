@@ -28,6 +28,11 @@ module Mercurial
     # Allows you to execute commands in a specific directory:
     #
     #  Shell.run('log', :in => repository_path)
+    # ==== :flags
+    #
+    # Allows you to add flags to the mercurial command
+    #
+    #  Shell.run('hg clone /path/to/repo/1','/path/to/destination', flags: { r: 'asdkjh1n123n' })
     #
     # ==== :pipe
     #
@@ -61,9 +66,13 @@ module Mercurial
       if dir = options.delete(:in)
         build << interpolate_arguments(["cd ?", dir])
       end
-      
+
       if cmd.kind_of?(Array)
         cmd = interpolate_arguments(cmd)
+      end
+
+      if flags = options.delete(:flags)
+        cmd << flags.inject('') {|command, (flag, value)| command += " -#{flag} #{value} "}
       end
 
       build << cmd
@@ -75,7 +84,7 @@ module Mercurial
 
       Mercurial::Command.new(to_run, options).execute
     end
-    
+
     def initialize(repository)
       @repository = repository
     end
